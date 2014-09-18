@@ -78,8 +78,8 @@
             base = this;
             // Introduce defaults that can be extended either globally or using an object literal. 
             base.config = $.extend({}, base.defaults, base.options, base.metadata);
-			base.actionClick={action:false,x:0,y:0};
-			base.currClick={x:0,y:0};
+            base.actionClick={action:false,x:0,y:0};
+            base.currClick={x:0,y:0};
 
             // Initialize plugin data
             base.data = $.data(base);
@@ -96,7 +96,7 @@
 
             // Create helper html objects
             base.$elem.addClass("slider");
-			base.$elem.css({ position: "relative" });
+            base.$elem.css({ position: "relative" });
             base.$elem.wrapInner("<div class='slide-wrapper'>", base.$elem).children();
             base.$elem.wrapInner("<div class='slide-container'>", $(".slide-wrapper", base.$elem)).children();
             base.$elem.wrapInner("<div class='slide-dragcontainer'>", $(".slide-container", base.$elem)).children();
@@ -121,9 +121,9 @@
                 if (base.config.prevnextAutoHide) {
                     $buttons.hide();
                     base.$elem.hover(
-		                function () { $buttons.fadeIn("fast") },
-		                function () { $buttons.fadeOut("fast") }
-	                );
+                        function () { $buttons.fadeIn("fast") },
+                        function () { $buttons.fadeOut("fast") }
+                    );
                 }
                 // Bind click event to buttons
                 $prev.on("click", function (e) { base.previous(); });
@@ -171,9 +171,9 @@
                 if (base.config.captionAutoHide) {
                     $("." + base.config.slideCaptionClass, base.$elem).hide();
                     base.$elem.hover(
-		                function () { $("." + base.config.slideCaptionClass, base.$elem).fadeIn("fast") },
-		                function () { $("." + base.config.slideCaptionClass, base.$elem).fadeOut("fast") }
-	                );
+                        function () { $("." + base.config.slideCaptionClass, base.$elem).fadeIn("fast") },
+                        function () { $("." + base.config.slideCaptionClass, base.$elem).fadeOut("fast") }
+                    );
                 }
             });
 
@@ -209,27 +209,39 @@
                     var eventData = e.originalEvent.touches[0];
                     e.preventDefault();
                     base._onMoveStart(eventData.pageX, eventData.pageY);
-					base.actionClick.x=base.currClick.x=eventData.pageX;
-					base.actionClick.y=base.currClick.y=eventData.pageY;
-					base.actionClick.action=true;
+                    base.actionClick.x=base.currClick.x=eventData.pageX;
+                    base.actionClick.y=base.currClick.y=eventData.pageY;
+                    base.actionClick.action=true;
+
+                    //console.log('x:' + base.currClick.x);
+                    //console.log('y:' + base.currClick.y);
+                    initialY = eventData.pageY;
+
                     return e.stopPropagation();
                 });
                 $container.on("touchmove", function (e) {
                     var eventData = e.originalEvent.touches[0];
                     e.preventDefault();
-					base.actionClick.action=false;
+                    base.actionClick.action=false;
                     base._onMove(eventData.pageX, eventData.pageY);
-					base.currClick.x=eventData.pageX;
+                    base.currClick.x=eventData.pageX;
                     base.currClick.y=eventData.pageY;
+
+                    //console.log(initialY);
+                    //console.log('x:' + eventData.pageX + ' - y:' + eventData.pageY);
+
+
+                    $("body").scrollTop($("body").scrollTop() - ( eventData.pageY - initialY ));
+
                     return e.stopPropagation();
                 });
                 $container.on("touchend", function (e) {
-					if ((base.actionClick.action==true)&&(base.actionClick.x==base.currClick.x)&&(base.actionClick.y==base.currClick.y)){
+                    if ((base.actionClick.action==true)&&(base.actionClick.x==base.currClick.x)&&(base.actionClick.y==base.currClick.y)){
                         var href=$container.find("."+base.config.activeSlideClass+" a, a."+base.config.activeSlideClass).attr("href");
                         if ((href!=undefined)&&(href!="")){
                             window.location=href;
                         }
-					}
+                    }
                     e.preventDefault();
                     base._onMoveEnd();
                     return e.stopPropagation();
@@ -241,9 +253,9 @@
                 $container.on("dragstart", function (e) { return false; });
                 $container.on("mousedown", function (e) {
                     base._onMoveStart(e.clientX, e.clientY);
-					base.actionClick.x=e.clientX;
-					base.actionClick.y=e.clientY;
-					base.actionClick.action=false;
+                    base.actionClick.x=e.clientX;
+                    base.actionClick.y=e.clientY;
+                    base.actionClick.action=false;
 
                     $(window).attr('unselectable', 'on').on('selectstart', false).css('user-select', 'none').css('UserSelect', 'none').css('MozUserSelect', 'none');
                     return e.stopPropagation();
@@ -256,26 +268,26 @@
                 // The mouseup event should also work outside the slide-wrapper container
                 $(window).on("mouseup", function (e) {
                     base._onMoveEnd();
-					if ((base.actionClick.x==e.clientX)&&(base.actionClick.y==e.clientY)){
-						base.actionClick.action=true;
-					}
+                    if ((base.actionClick.x==e.clientX)&&(base.actionClick.y==e.clientY)){
+                        base.actionClick.action=true;
+                    }
 
                     $(window).removeAttr('unselectable').unbind('selectstart').css('user-select', null).css('UserSelect', null).css('MozUserSelect', null);
                     return e.stopPropagation();
                 });
-				//ie7 and ie8 support
+                //ie7 and ie8 support
                 $container.on("mouseup", function (e) {
                     if ((base.actionClick.x==e.clientX)&&(base.actionClick.y==e.clientY)){
-						base.actionClick.action=true;
-					}
+                        base.actionClick.action=true;
+                    }
                 });
-				//prevet click action on link if mouse drag
-				$container.on("click", function (e) {
+                //prevet click action on link if mouse drag
+                $container.on("click", function (e) {
                     if (base.actionClick.action!=true){
                         e.stopPropagation();
-						e.preventDefault();
-					}
-				});
+                        e.preventDefault();
+                    }
+                });
             }
 
             // Auto-size before preparing slides
